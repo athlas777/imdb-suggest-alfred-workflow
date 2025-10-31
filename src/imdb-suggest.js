@@ -161,7 +161,7 @@ function fetchSuggestions(query) {
  * @param {Object} fileManager - NSFileManager instance
  * @param {number} maxFiles - Número máximo de archivos a mantener
  */
-function cleanupImageCache(cacheDir, fileManager, maxFiles = 15) {
+function cleanupImageCache(cacheDir, fileManager, maxFiles = 300) {
     try {
         const imagesDir = cacheDir + '/images';
         const files = fileManager.contentsOfDirectoryAtPathError($(imagesDir), $());
@@ -244,7 +244,7 @@ function run(argv) {
 
     // Limpiar caché de imágenes ocasionalmente (solo 10% de las veces)
     if (Math.random() < 0.1) {
-        cleanupImageCache(cacheDir, fileManager, 15);
+        cleanupImageCache(cacheDir, fileManager, 300);
     }
 
     // Obtener datos frescos
