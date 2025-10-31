@@ -114,18 +114,19 @@ function makeItems(suggestions, cacheDir, fileManager) {
 
         const arg = `https://www.imdb.com${subpath}`;
 
+        // Objeto simplificado con mods para CMD+Enter
         return {
             uid: sugg.id,
             title: title,
             subtitle: subtitle,
             arg: arg,
             icon: { path: icon },
-            autocomplete: title,
-            text: {
-                copy: title,
-                largetype: title
+            mods: {
+                cmd: {
+                    arg: sugg.id,
+                    subtitle: `IMDb ID: ${sugg.id}`
+                }
             },
-            quicklookurl: arg,
             valid: true
         };
     });
