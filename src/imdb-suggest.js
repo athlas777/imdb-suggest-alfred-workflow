@@ -4,10 +4,10 @@ ObjC.import("stdlib");
 const ICON = "icon.png";
 
 /**
- * Lee archivo de texto si existe
- * @param {string} filepath - Ruta del archivo
+ * Reads text file if exists
+ * @param {string} filepath - File path
  * @param {Object} fileManager - NSFileManager instance
- * @returns {string|null} Contenido del archivo o null
+ * @returns {string|null} File content or null
  */
 function readTextFile(filepath, fileManager) {
 	if (!fileManager.fileExistsAtPath(filepath)) return null;
@@ -20,9 +20,9 @@ function readTextFile(filepath, fileManager) {
 }
 
 /**
- * Escribe archivo de texto
- * @param {string} filepath - Ruta del archivo
- * @param {string} content - Contenido a escribir
+ * Writes text file
+ * @param {string} filepath - File path
+ * @param {string} content - Content to write
  */
 function writeTextFile(filepath, content) {
 	const nsString = $.NSString.stringWithString(content);
@@ -35,16 +35,15 @@ function writeTextFile(filepath, content) {
 }
 
 /**
- * Convierte sugerencias de IMDb en items de Alfred
- * @param {Object[]} suggestions - Array de sugerencias de IMDb
- * @param {string} cacheDir - Directorio de cache para imágenes
+ * Converts IMDb suggestions to Alfred items
+ * @param {Object[]} suggestions - IMDb suggestions array
+ * @param {string} cacheDir - Cache directory for images
  * @param {Object} fileManager - NSFileManager instance
- * @returns {Object[]} Array de items de Alfred
+ * @returns {Object[]} Alfred items array
  */
 function makeItems(suggestions, cacheDir, fileManager) {
 	const imagesDir = cacheDir + "/images";
 
-	// Crear directorio de imágenes una sola vez
 	fileManager.createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
 		$(imagesDir),
 		true,
@@ -56,7 +55,6 @@ function makeItems(suggestions, cacheDir, fileManager) {
 		const title = sugg.l;
 		const subtitle = sugg.s || "";
 
-		// Manejar icono con caché de imágenes
 		let icon = ICON;
 		if (sugg.i && sugg.i.imageUrl) {
 			try {
@@ -64,21 +62,18 @@ function makeItems(suggestions, cacheDir, fileManager) {
 				const filename = imageUrl.split("/").pop().split("?")[0];
 				const filepath = imagesDir + "/" + filename;
 
-				// Si la imagen ya existe, usarla
 				if (fileManager.fileExistsAtPath(filepath)) {
 					icon = filepath;
 				} else {
-					// Intentar descargar solo si no existe
 					const imgURL = $.NSURL.URLWithString(imageUrl);
 					const imgData = $.NSData.dataWithContentsOfURL(imgURL);
 					if (imgData && imgData.length > 0) {
 						imgData.writeToFileAtomically(filepath, true);
 						icon = filepath;
 					}
-					// Si falla, usa icono por defecto (ya asignado)
 				}
 			} catch (e) {
-				// Silenciosamente usar icono por defecto si hay error
+				// Use default icon on error
 			}
 		}
 
@@ -94,15 +89,16 @@ function makeItems(suggestions, cacheDir, fileManager) {
 					subtitle: `⌘ Copy IMDb ID: ${sugg.id}`,
 				},
 			},
+			quicklookurl: `https://www.imdb.com/title/${sugg.id}/`,
 			valid: true,
 		};
 	});
 }
 
 /**
- * Obtiene sugerencias de IMDb desde la API
- * @param {string} query - Búsqueda
- * @returns {Object[]} Array de sugerencias
+ * Fetches suggestions from IMDb API
+ * @param {string} query - Search query
+ * @returns {Object[]} Suggestions array
  */
 function fetchSuggestions(query) {
 	try {
@@ -129,16 +125,15 @@ function fetchSuggestions(query) {
 }
 
 /**
- * Limpia imágenes antiguas manteniendo solo las N más recientes
- * @param {string} cacheDir - Directorio de caché
+ * Cleans old images keeping only N most recent
+ * @param {string} cacheDir - Cache directory
  * @param {Object} fileManager - NSFileManager instance
- * @param {number} maxFiles - Número máximo de archivos a mantener
+ * @param {number} maxFiles - Maximum files to keep
  */
 function cleanupImageCache(cacheDir, fileManager, maxFiles = 300) {
 	try {
 		const imagesDir = cacheDir + "/images";
 
-		// Verificar que el directorio existe
 		if (!fileManager.fileExistsAtPath(imagesDir)) return;
 
 		const files = fileManager.contentsOfDirectoryAtPathError(
@@ -150,7 +145,6 @@ function cleanupImageCache(cacheDir, fileManager, maxFiles = 300) {
 		const imageFiles = [];
 		for (let i = 0; i < files.count; i++) {
 			const filename = ObjC.unwrap(files.objectAtIndex(i));
-			// Filtrar archivos de imagen
 			if (filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
 				const filepath = `${imagesDir}/${filename}`;
 				const attrs = fileManager.attributesOfItemAtPathError(
@@ -169,25 +163,22 @@ function cleanupImageCache(cacheDir, fileManager, maxFiles = 300) {
 			}
 		}
 
-		// Solo limpiar si excedemos el límite
 		if (imageFiles.length <= maxFiles) return;
 
-		// Ordenar por fecha de modificación (más recientes primero)
 		imageFiles.sort((a, b) => b.modTime - a.modTime);
 
-		// Eliminar archivos antiguos
 		for (let i = maxFiles; i < imageFiles.length; i++) {
 			fileManager.removeItemAtPathError($(imageFiles[i].path), $());
 		}
 	} catch (e) {
-		// Ignorar errores de limpieza para no interrumpir el workflow
+		// Ignore cleanup errors
 	}
 }
 
 /**
- * Punto de entrada principal
- * @param {string[]} argv - Argumentos (query)
- * @returns {string} JSON para Alfred Script Filter
+ * Main entry point
+ * @param {string[]} argv - Arguments (query)
+ * @returns {string} JSON for Alfred Script Filter
  */
 function run(argv) {
 	const query = argv[0]?.trim() || "";
@@ -216,7 +207,6 @@ function run(argv) {
 	const cacheDir = workflowCache || "/tmp/alfred-imdb-cache";
 	const fileManager = $.NSFileManager.defaultManager;
 
-	// Crear directorio de caché
 	fileManager.createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
 		$(cacheDir),
 		true,
@@ -226,7 +216,7 @@ function run(argv) {
 
 	const cacheFile = `${cacheDir}/cache.json`;
 
-	// Leer caché existente
+	// Read existing cache
 	let cache = {};
 	const cacheData = readTextFile(cacheFile, fileManager);
 	if (cacheData) {
@@ -239,9 +229,9 @@ function run(argv) {
 
 	const queryKey = query.toLowerCase();
 	const currentTime = Math.floor(Date.now() / 1000);
-	const cacheExpiry = 300; // 5 minutos
+	const cacheExpiry = 300; // 5 minutes
 
-	// Verificar si tenemos datos válidos en caché
+	// Return cached data if valid
 	if (
 		cache[queryKey] &&
 		cache[queryKey].timestamp &&
@@ -250,16 +240,16 @@ function run(argv) {
 		return JSON.stringify(cache[queryKey].data);
 	}
 
-	// Debouncing: no hacer requests muy frecuentes
+	// Debouncing: avoid too frequent requests
 	const lastQueryTime = cache._lastRequestTime || 0;
 	const timeSinceLastRequest = currentTime - lastQueryTime;
 
 	if (timeSinceLastRequest < 1) {
-		// Mostrar últimos resultados solo si son de la misma query
+		// Show last results only if same query
 		if (cache._lastResults && cache._lastQuery === queryKey) {
 			return JSON.stringify(cache._lastResults);
 		}
-		// Si es una query diferente, mostrar mensaje de carga
+		// Show loading message for different query
 		return JSON.stringify({
 			items: [
 				{
@@ -272,12 +262,12 @@ function run(argv) {
 		});
 	}
 
-	// Limpiar caché de imágenes ocasionalmente (5% de probabilidad)
+	// Cleanup image cache occasionally (5% probability)
 	if (Math.random() < 0.05) {
 		cleanupImageCache(cacheDir, fileManager, 300);
 	}
 
-	// Obtener datos frescos
+	// Fetch fresh data
 	try {
 		const suggestions = fetchSuggestions(query);
 
@@ -299,18 +289,18 @@ function run(argv) {
 			};
 		}
 
-		// Actualizar caché con timestamp actual
+		// Update cache
 		cache[queryKey] = {
 			data: resultData,
 			timestamp: currentTime,
 		};
 
-		// Guardar últimos resultados, query y tiempo de request
+		// Save last results, query and request time
 		cache._lastResults = resultData;
 		cache._lastQuery = queryKey;
 		cache._lastRequestTime = currentTime;
 
-		// Limpiar entradas antiguas del caché (mantener últimas 20 búsquedas)
+		// Clean old cache entries (keep last 20 searches)
 		const entries = Object.entries(cache).filter(
 			([key]) => !key.startsWith("_")
 		);
@@ -319,14 +309,13 @@ function run(argv) {
 				(a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0)
 			);
 			const newCache = Object.fromEntries(entries.slice(0, 20));
-			// Preservar variables internas
+			// Preserve internal variables
 			newCache._lastRequestTime = cache._lastRequestTime;
 			newCache._lastResults = cache._lastResults;
 			newCache._lastQuery = cache._lastQuery;
 			cache = newCache;
 		}
 
-		// Guardar caché actualizado
 		writeTextFile(cacheFile, JSON.stringify(cache));
 
 		return JSON.stringify(resultData);
